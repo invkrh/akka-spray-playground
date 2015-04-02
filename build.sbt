@@ -22,5 +22,5 @@ lazy val networkChat = project.in(file("network-chat")).
   settings(commonSettings: _*).
   settings(
     name := "network-chat",
-    libraryDependencies += networkChatDeps
+    libraryDependencies ++= networkChatDeps
   )

@@ -7,12 +7,6 @@ import akka.actor.{ActorSystem, Props}
  * Time: 7:02 PM
  */
 
-object Main extends App{
-
-  val system = ActorSystem("mySystem")
-  val myActor = system.actorOf(Props(new MyActor(2)), name = "myactor")
-
-  myActor ! "test"
-
-  system.shutdown()
+object Main extends App {
+  println("hello world")
 }
