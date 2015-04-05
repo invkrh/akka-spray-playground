@@ -12,8 +12,8 @@ import Event._
 
 class ClientActor(val id: String) extends Actor {
   override def receive: Receive = {
-    case msg@Message(txt, sdrid) => println(s"\n[$sdrid> $txt]")
-    case ClientList(ids)         => println(s"\nOnline: \n" + (ids mkString "\n"))
+    case msg@Message(txt, sdrid) => print(s"\n\n[$sdrid> $txt]\n\nme > ")
+    case ClientList(ids)         => print("\n[" + (ids mkString ", ") + "]\n\nme > ")
   }
 }
 
@@ -26,15 +26,15 @@ object ClientApp extends App {
   val serverAddress = "127.0.0.1"
   val server        = system.actorSelection(s"akka.tcp://AkkaChat@$serverAddress:$serverPort/user/chatserver")
 
-  val client = system.actorOf(Props(classOf[ClientActor], server, id), name = s"client_$id")
+  val client = system.actorOf(Props(classOf[ClientActor], id), name = s"client_$id")
   server.tell(Register(id), client)
 
-  Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach { msg =>
-    print("me> ")
-    msg match {
-      case "/list"     => server.tell(GetOnlineClients, client)
-      case txt: String => server.tell(Message(txt, id), client)
-    }
+  print("me > ")
+  Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
+    case "/list"     => server.tell(GetOnlineClients, client)
+    case txt: String =>
+      server.tell(Message(txt, id), client)
+      print("me > ") // for continuous input prompt
   }
 
   println("Exiting...")

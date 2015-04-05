@@ -20,7 +20,7 @@ class ServerActor extends Actor {
       sender ! ClientList(idToRef.keys.toSet)
     case Register(id)         =>
       idToRef += id -> sender
-      println(s"server> $id has registered")
+      println(s"server > $id has registered")
     case Unregister(id)       =>
       idToRef -= id
       sender ! PoisonPill
