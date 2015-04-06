@@ -11,5 +11,5 @@ lazy val root = project.in(file(".")).
   settings(commonSettings: _*).
   settings(
     name := "command-line-chat",
-    libraryDependencies ++= networkChatDeps
+    libraryDependencies ++= rootDeps
   )

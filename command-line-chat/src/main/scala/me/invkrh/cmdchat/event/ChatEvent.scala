@@ -1,4 +1,4 @@
-package event
+package me.invkrh.cmdchat.event
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +14,10 @@ case object GetOnlineClients extends ChatEvent
 case class Register(id: String) extends ChatEvent
 
 case class Unregister(id: String) extends ChatEvent
+
+case class NewComer(id: String) extends ChatEvent
+
+case class SomeOneLeave(id: String) extends ChatEvent
 
 case class Message(text: String, senderId: String) extends ChatEvent
 

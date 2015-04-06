@@ -1,6 +1,10 @@
+import java.io.ByteArrayInputStream
+import java.util.Scanner
+
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
-import event.{ClientList, Message}
+import me.invkrh.cmdchat.event.{ClientList, Message}
+import me.invkrh.cmdchat.{ClientActor, ClientApp}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
@@ -31,4 +35,11 @@ with BeforeAndAfterAll {
     clientRef ! ClientList(Set("A", "B"))
     expectNoMsg()
   }
+
+  //TODO: no idea why readLine does not read inputStream
+  //  "readLine" should "work" in {
+  //    val in = new ByteArrayInputStream("abc".getBytes)
+  //    System.setIn(in)
+  //    readLine() === "tester"
+  //  }
 }

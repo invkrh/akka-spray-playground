@@ -18,5 +18,5 @@ object Dependencies {
   val scalaTest   = "org.scalatest" % "scalatest_2.10" % "2.2.4" % "test"
 
   // Projects
-  val networkChatDeps = Seq(akkaActor, akkaRemote, akkaTestkit, scalaTest)
+  val rootDeps = Seq(akkaActor, akkaRemote, akkaTestkit, scalaTest)
 }
