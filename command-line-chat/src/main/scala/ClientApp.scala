@@ -38,15 +38,13 @@ object ClientApp extends App {
   print("me > ")
   Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
     case "/list"     => server.tell(GetOnlineClients, client)
-    case "/join"     => server.tell(Register(id), client)
-    case "/leave"    => server.tell(Unregister(id), client)
     case txt: String =>
       server.tell(Message(txt, id), client)
       print("me > ") // for continuous input prompt
   }
 
   println("Exiting...")
-  server.tell(Unregister, client)
+  server.tell(Unregister(id), client)
   system.shutdown()
 
 }
