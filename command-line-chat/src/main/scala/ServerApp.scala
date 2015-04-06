@@ -1,6 +1,6 @@
-import Event._
 import akka.actor._
 import com.typesafe.config.ConfigFactory
+import event._
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,16 +18,21 @@ class ServerActor extends Actor {
       idToRef.values filter (_ != sender) foreach (_ forward msg)
     case GetOnlineClients     =>
       sender ! ClientList(idToRef.keys.toSet)
+
+    //TODO: broadcast membership changes
     case Register(id)         =>
       idToRef += id -> sender
       println(s"server > $id has registered")
     case Unregister(id)       =>
       idToRef -= id
+      println(s"server > $id has left")
       sender ! PoisonPill
   }
 }
 
 object ServerApp extends App {
-  val system = ActorSystem("AkkaChat", ConfigFactory.load.getConfig("server-node"))
-  val server = system.actorOf(Props[ServerActor], name = "chatserver")
+
+  ActorSystem("AkkaChat", ConfigFactory.load.getConfig("server-node"))
+    .actorOf(Props[ServerActor], name = "chatserver")
+
 }

@@ -8,30 +8,38 @@ import com.typesafe.config.ConfigFactory
  * Time: 9:46 PM
  */
 
-import Event._
+import event._
 
 class ClientActor(val id: String) extends Actor {
   override def receive: Receive = {
-    case msg@Message(txt, sdrid) => print(s"\n\n[$sdrid> $txt]\n\nme > ")
-    case ClientList(ids)         => print("\n[" + (ids mkString ", ") + "]\n\nme > ")
+    case msg@Message(txt, sdr) => print(s"\n\n[$sdr> $txt]\n\nme > ")
+    case ClientList(ids)       => print("\n[" + (ids mkString ", ") + "]\n\nme > ")
   }
 }
 
 object ClientApp extends App {
 
-  val id     = readLine()
-  val system = ActorSystem("AkkaChat", ConfigFactory.load.getConfig("client-node"))
+  print("Please enter you name: ")
 
+  val id            = readLine()
+  val system        = ActorSystem("AkkaChat", ConfigFactory.load.getConfig("client-node"))
   val serverPort    = 2552
   val serverAddress = "127.0.0.1"
   val server        = system.actorSelection(s"akka.tcp://AkkaChat@$serverAddress:$serverPort/user/chatserver")
 
+  //TODO: make sure server can be found
+  //server.resolveOne()
+
   val client = system.actorOf(Props(classOf[ClientActor], id), name = s"client_$id")
+
+  //TODO: make sure id is unique
   server.tell(Register(id), client)
 
   print("me > ")
   Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
     case "/list"     => server.tell(GetOnlineClients, client)
+    case "/join"     => server.tell(Register(id), client)
+    case "/leave"    => server.tell(Unregister(id), client)
     case txt: String =>
       server.tell(Message(txt, id), client)
       print("me > ") // for continuous input prompt
@@ -39,5 +47,6 @@ object ClientApp extends App {
 
   println("Exiting...")
   server.tell(Unregister, client)
+  system.shutdown()
 
 }

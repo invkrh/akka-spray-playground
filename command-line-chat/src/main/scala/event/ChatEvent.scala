@@ -1,6 +1,4 @@
-package Event
-
-import scala.collection.mutable.ArrayBuffer
+package event
 
 /**
  * Created with IntelliJ IDEA.

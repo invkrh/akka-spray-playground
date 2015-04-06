@@ -12,13 +12,13 @@ lazy val root = (project in file(".")).
   settings(
     name := "akka-spray-playground"
   ).
-  aggregate(networkChat).
+  aggregate(commandLineChat).
   settings(
     aggregate in update := false
   ).
-  dependsOn(networkChat)
+  dependsOn(commandLineChat)
 
-lazy val networkChat = project.in(file("network-chat")).
+lazy val commandLineChat = project.in(file("command-line-chat")).
   settings(commonSettings: _*).
   settings(
     name := "network-chat",
