@@ -1,15 +1,10 @@
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
-import com.typesafe.config.ConfigFactory
-import me.invkrh.cmdchat.{ServerApp, ServerActor}
-import me.invkrh.cmdchat.event._
+import me.invkrh.cmdchat._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
-import scala.util.{Failure, Success, Random}
+import scala.util.Random
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,7 +41,7 @@ with BeforeAndAfterAll {
   it should "register client correctly" in {
     val (serverRef, _, _) = settings()
     val newClient = TestProbe()
-    serverRef.tell(Register("123"), newClient.ref)
+    serverRef.tell(Register(newClient.ref, "123"), newClient.ref)
     serverRef.underlyingActor.idToRef.contains("123") shouldBe true
   }
 

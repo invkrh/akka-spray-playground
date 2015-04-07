@@ -1,4 +1,6 @@
-package me.invkrh.cmdchat.event
+package me.invkrh.cmdchat
+
+import akka.actor.ActorRef
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,10 +13,13 @@ sealed trait ChatEvent
 
 case object GetOnlineClients extends ChatEvent
 
-case class Register(id: String) extends ChatEvent
+case class Register(client: ActorRef, name: String) extends ChatEvent
+
+case class NameVerification(result: Boolean, name: String) extends ChatEvent
 
 case class Unregister(id: String) extends ChatEvent
 
+// TODO: reduce new/leave to one event
 case class NewComer(id: String) extends ChatEvent
 
 case class SomeOneLeave(id: String) extends ChatEvent

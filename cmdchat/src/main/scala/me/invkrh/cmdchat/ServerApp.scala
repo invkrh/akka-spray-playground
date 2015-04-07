@@ -2,7 +2,6 @@ package me.invkrh.cmdchat
 
 import akka.actor._
 import com.typesafe.config.ConfigFactory
-import me.invkrh.cmdchat.event._
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,13 +19,13 @@ class ServerActor extends Actor {
       idToRef.values filter (_ != sender) foreach (_ forward msg)
     case GetOnlineClients       =>
       sender ! ClientList(idToRef.keys.toSet)
-    case Register(name)         =>
+    case Register(client, name)         =>
       if (idToRef.contains(name)) {
-        sender() ! false
+        sender() ! NameVerification(result = false, "")
       } else {
         idToRef.values foreach (_ ! NewComer(name))
-        sender() ! true
-        idToRef += name -> sender
+        sender() ! NameVerification(result = true, name)
+        idToRef += name -> client
         println(s"server > $name has registered")
       }
     case Unregister(name)       =>

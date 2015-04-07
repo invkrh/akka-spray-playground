@@ -1,10 +1,6 @@
-import java.io.ByteArrayInputStream
-import java.util.Scanner
-
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
-import me.invkrh.cmdchat.event.{ClientList, Message}
-import me.invkrh.cmdchat.{ClientActor, ClientApp}
+import me.invkrh.cmdchat.{ClientActor, ClientList, Message}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
@@ -25,13 +21,13 @@ with BeforeAndAfterAll {
   }
 
   it should "reply nothing when receiving a msg" in {
-    val clientRef = TestActorRef(new ClientActor("clt"))
+    val clientRef = TestActorRef(new ClientActor())
     clientRef ! Message("this is a message", "testActor")
     expectNoMsg()
   }
 
   it should "reply nothing when receiving a client list" in {
-    val clientRef = TestActorRef(new ClientActor("clt"))
+    val clientRef = TestActorRef(new ClientActor())
     clientRef ! ClientList(Set("A", "B"))
     expectNoMsg()
   }
