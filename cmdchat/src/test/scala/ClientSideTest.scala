@@ -1,3 +1,5 @@
+import java.io.{SequenceInputStream, ByteArrayInputStream}
+
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import me.invkrh.cmdchat.{ClientActor, ClientList, Message}
@@ -32,10 +34,15 @@ with BeforeAndAfterAll {
     expectNoMsg()
   }
 
-  //TODO: no idea why readLine does not read inputStream
-  //  "readLine" should "work" in {
-  //    val in = new ByteArrayInputStream("abc".getBytes)
-  //    System.setIn(in)
-  //    readLine() === "tester"
-  //  }
+  //TODO: auto SequenceInputStream creation, add tests for all code
+  "readLine" should "work" in {
+    val name = new ByteArrayInputStream("A".getBytes)
+    val list = new ByteArrayInputStream("/list".getBytes)
+    val exit = new ByteArrayInputStream("/exit".getBytes)
+    val inputs = new SequenceInputStream(name, new SequenceInputStream(list , exit))
+    Console.setIn(inputs)
+    readLine() === "A"
+    readLine() === "/list"
+    readLine() === "/exit"
+  }
 }
