@@ -12,25 +12,41 @@ import com.typesafe.config.ConfigFactory
 
 class ServerActor extends Actor {
 
-  var idToRef = Map[String, ActorRef]()
+  /**
+   * Some => registered client
+   * None => client having reserved a name
+   */
+  var idToRef = Map[String, Option[ActorRef]]()
 
   override def receive: Receive = {
-    case msg@Message(txt, name) =>
-      idToRef.values filter (_ != sender) foreach (_ forward msg)
-    case GetOnlineClients       =>
-      sender ! ClientList(idToRef.keys.toSet)
-    case Register(client, name)         =>
+    case NameCheck(id@name)     =>
       if (idToRef.contains(name)) {
-        sender() ! NameVerification(result = false, "")
+        sender() ! NameValidation(result = false, name)
       } else {
-        idToRef.values foreach (_ ! NewComer(name))
-        sender() ! NameVerification(result = true, name)
-        idToRef += name -> client
-        println(s"server > $name has registered")
+        sender() ! NameValidation(result = true, name)
+        idToRef += name -> None
       }
+    case msg@Message(txt, name) =>
+      idToRef.filter(p => p._1 != name).values.foreach {
+        case Some(client) => client forward msg
+        case None         =>
+      }
+    case GetOnlineClients       =>
+      sender ! ClientList(idToRef.filter(_._2 != None).keys.toSet)
+    case Register(client, name) =>
+      idToRef.values foreach {
+        case Some(member) => member ! MemberChanged(name, isExists = true)
+        case None         =>
+      }
+      idToRef += name -> Some(client)
+      sender ! Authorized(client, name)
+      println(s"server > $name has joined")
     case Unregister(name)       =>
       idToRef -= name
-      idToRef.values foreach (_ ! SomeOneLeave(name))
+      idToRef.values foreach {
+        case Some(member) => member ! MemberChanged(name, isExists = false)
+        case None         =>
+      }
       sender ! PoisonPill
       println(s"server > $name has left")
   }

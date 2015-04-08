@@ -2,7 +2,7 @@ import java.io.{SequenceInputStream, ByteArrayInputStream}
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
-import me.invkrh.cmdchat.{ClientActor, ClientList, Message}
+import me.invkrh.cmdchat.{ClientApp, ClientActor, ClientList, Message}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
@@ -23,26 +23,26 @@ with BeforeAndAfterAll {
   }
 
   it should "reply nothing when receiving a msg" in {
-    val clientRef = TestActorRef(new ClientActor())
-    clientRef ! Message("this is a message", "testActor")
+    val clientRef = TestActorRef(new ClientActor(""))
+    clientRef ! Message("this is a message", "")
     expectNoMsg()
   }
 
   it should "reply nothing when receiving a client list" in {
-    val clientRef = TestActorRef(new ClientActor())
+    val clientRef = TestActorRef(new ClientActor(""))
     clientRef ! ClientList(Set("A", "B"))
     expectNoMsg()
   }
 
-  //TODO: auto SequenceInputStream creation, add tests for all code
-  "readLine" should "work" in {
-    val name = new ByteArrayInputStream("A".getBytes)
-    val list = new ByteArrayInputStream("/list".getBytes)
-    val exit = new ByteArrayInputStream("/exit".getBytes)
-    val inputs = new SequenceInputStream(name, new SequenceInputStream(list , exit))
-    Console.setIn(inputs)
-    readLine() === "A"
-    readLine() === "/list"
-    readLine() === "/exit"
+  "Client App" should "work" in {
+    import scala.collection.JavaConversions.asJavaEnumeration
+    import java.io.{ByteArrayInputStream, SequenceInputStream}
+
+    val inputs = Iterator("A", "/list", "/exit")
+      .map(x => new ByteArrayInputStream((x + "\n").getBytes))
+    val in = new SequenceInputStream(asJavaEnumeration(inputs))
+    Console.setIn(in)
+
+    ClientApp.main(Array())
   }
 }

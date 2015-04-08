@@ -14,29 +14,28 @@ import scala.util.{Failure, Success}
  * (login, send message, quit, etc)
  *
  * @param server
- * @param client
  */
-class SessionActor(server: ActorRef, client: ActorRef) extends Actor {
+class SessionActor(server: ActorRef) extends Actor {
 
   def checkName() = {
     val name = readLine("\nPlease enter you name: ")
-
-    /**
-     * SessionActor sends this msg to server,
-     * while server will register client
-     */
-    server ! Register(client, name)
+    server ! NameCheck(name)
   }
 
-  override def preStart() {
-    checkName()
+  def verification(): Receive = {
+    case NameValidation(true, name) =>
+      val client = context.actorOf(Props(classOf[ClientActor], name))
+      server ! Register(client, name)
+      context.become(working())
+
+    case NameValidation(false, name) =>
+      showNotification("Server", s"Name [ $name ] is occupied, please try another ...")
+      checkName()
   }
 
-  override def receive: Actor.Receive = {
-    case NameVerification(true, name) =>
-      import NameHolder._
-      clientName = name // save name for later prompt use
-      notification("Server", s"Hey, $name. You are connected!", prompt())
+  def working(): Receive = {
+    case Authorized(client, name) =>
+      showNotification("Server", s"Hey, $name. You are connected!", getPrompt(name))
       Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
         case "/list"     => server.tell(GetOnlineClients, client)
         case txt: String =>
@@ -46,21 +45,23 @@ class SessionActor(server: ActorRef, client: ActorRef) extends Actor {
       println("Exiting...")
       server.tell(Unregister(name), client)
       context.system.shutdown()
-    case NameVerification(false, _)   =>
-      notification("Server", "Name occupied, please try another ...")
-      checkName()
   }
+
+  override def preStart() {
+    checkName()
+  }
+
+  override def receive: Actor.Receive = verification()
 }
 
-class ClientActor extends Actor {
-
-  import NameHolder._
+class ClientActor(val name: String) extends Actor {
+  val prompt = getPrompt(name)
 
   override def receive: Receive = {
-    case ClientList(ids)       => cmdResultDisplay(ids mkString ", ", prompt())
-    case NewComer(another)     => notification("Server", s"$another has joined in the group", prompt())
-    case SomeOneLeave(another) => notification("Server", s"$another has left the group", prompt())
-    case msg@Message(txt, sdr) => incomingMSGDisplay(sdr, txt, prompt())
+    case ClientList(ids)               => showInputRes(ids mkString ", ", prompt)
+    case MemberChanged(another, true)  => showNotification("Server", s"$another has joined in the group", prompt)
+    case MemberChanged(another, false) => showNotification("Server", s"$another has left the group", prompt)
+    case msg@Message(txt, sdr)         => showIncomingMSG(sdr, txt, prompt)
   }
 }
 
@@ -74,15 +75,16 @@ object ClientApp {
 
     // validation
     import scala.concurrent.ExecutionContext.Implicits.global
+
+    // need to resolve server in 5 seconds
     implicit val timeout = Timeout(5 seconds)
     system.actorSelection(s"akka.tcp://AkkaChat@$serverAddress:$serverPort/user/chatserver")
       .resolveOne()
       .onComplete {
       case Success(server) => // Server is ready
-        val client = system.actorOf(Props(classOf[ClientActor]))
-        system.actorOf(Props(classOf[SessionActor], server, client))
+        system.actorOf(Props(classOf[SessionActor], server))
       case Failure(_)      =>
-        notification("System", "service not available!")
+        showNotification("System", "service not available!")
         system.shutdown()
     }
 

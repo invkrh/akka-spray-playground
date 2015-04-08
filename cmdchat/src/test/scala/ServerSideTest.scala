@@ -30,7 +30,7 @@ with BeforeAndAfterAll {
     val clients = Array.tabulate(nbClient)(_ => (Random.alphanumeric.take(10).toArray.mkString, TestProbe())).toMap
     // map remove duplicated keys if exists
     val rdClientId = clients.keys.toArray.apply(Random.nextInt(nbClient))
-    server.idToRef = clients.mapValues(_.ref)
+    server.idToRef = clients.mapValues(v => Some(v.ref))
     (serverRef, clients, rdClientId)
   }
 
@@ -64,7 +64,40 @@ with BeforeAndAfterAll {
     serverRef.underlyingActor.idToRef.contains(rdClientId) shouldBe false
   }
 
-  "Server App" should "start correctly" in {
+  "ServerActor" should "check name" in {
+    val (serverRef, _, rdClientId) = settings()
+    serverRef ! NameCheck(rdClientId)
+    expectMsg(NameValidation(false, rdClientId))
+    serverRef ! NameCheck("123")
+    expectMsg(NameValidation(true, "123"))
+  }
+
+  //TODO: complete and refactor test
+  "ServerActor" should "do broadcast correctly when some names are reserved" in {
+    val (serverRef, _, innerProbeName) = settings()
+    val innerRef = serverRef.underlyingActor.idToRef(innerProbeName).get
+    // reserver a name
+    val nm = "123"
+    serverRef ! NameCheck(nm)
+    expectMsg(NameValidation(true, nm))
+    // broadcast unregister event
+    serverRef ! Unregister(innerProbeName)
+    expectNoMsg()
+    // broadcast register event
+    serverRef ! NameCheck(innerProbeName)
+    expectMsg(NameValidation(true, innerProbeName))
+    val pb1 = TestProbe().ref
+    serverRef ! Register(pb1, innerProbeName)
+    expectMsg(Authorized(pb1, innerProbeName))
+    // broadcast client list
+    serverRef ! GetOnlineClients
+    expectMsg(ClientList(serverRef.underlyingActor.idToRef.keys.toSet))
+    val pb2 = TestProbe().ref
+    serverRef ! Register(pb2, nm)
+    expectMsg(Authorized(pb2, nm))
+  }
+
+  "ServerApp" should "start correctly" in {
     // this test is considered O.K. if no exception is thrown
     ServerApp.main(Array())
   }
