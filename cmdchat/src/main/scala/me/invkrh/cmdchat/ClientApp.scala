@@ -37,13 +37,12 @@ class SessionActor(server: ActorRef) extends Actor {
     case Authorized(client, name) =>
       showNotification("Server", s"Hey, $name. You are connected!", getPrompt(name))
       Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
-        case "/list"     => server.tell(GetOnlineClients, client)
         case txt: String =>
           server.tell(Message(txt, name), client)
           print(s"\nme ($name) > ") // for continuous input prompt
       }
       println("Exiting...")
-      server.tell(Unregister(name), client)
+      server ! Unregister(client, name)
       context.system.shutdown()
   }
 

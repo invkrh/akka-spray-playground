@@ -28,11 +28,11 @@ class ServerActor extends Actor {
       }
     case msg@Message(txt, name) =>
       idToRef.filter(p => p._1 != name).values.foreach {
-        case Some(client) => client forward msg
+        case Some(member) => member forward msg
         case None         =>
       }
-    case GetOnlineClients       =>
-      sender ! ClientList(idToRef.filter(_._2 != None).keys.toSet)
+    case GetOnlineClients(requester)       =>
+      requester ! ClientList(idToRef.filter(_._2 != None).keys.toSet)
     case Register(client, name) =>
       idToRef.values foreach {
         case Some(member) => member ! MemberChanged(name, isExists = true)
@@ -41,13 +41,13 @@ class ServerActor extends Actor {
       idToRef += name -> Some(client)
       sender ! Authorized(client, name)
       println(s"server > $name has joined")
-    case Unregister(name)       =>
+    case Unregister(client, name)       =>
       idToRef -= name
       idToRef.values foreach {
         case Some(member) => member ! MemberChanged(name, isExists = false)
         case None         =>
       }
-      sender ! PoisonPill
+      client ! PoisonPill
       println(s"server > $name has left")
   }
 }

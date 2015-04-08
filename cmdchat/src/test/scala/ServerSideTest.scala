@@ -60,7 +60,7 @@ with BeforeAndAfterAll {
 
   it should "list all registered client except the unregistered ones" in {
     val (serverRef, clients, rdClientId) = settings()
-    serverRef.tell(Unregister(rdClientId), clients(rdClientId).ref)
+    serverRef.tell(Unregister(clients(rdClientId).ref, rdClientId), clients(rdClientId).ref)
     serverRef.underlyingActor.idToRef.contains(rdClientId) shouldBe false
   }
 
@@ -81,7 +81,7 @@ with BeforeAndAfterAll {
     serverRef ! NameCheck(nm)
     expectMsg(NameValidation(true, nm))
     // broadcast unregister event
-    serverRef ! Unregister(innerProbeName)
+    serverRef ! Unregister(innerRef, innerProbeName)
     expectNoMsg()
     // broadcast register event
     serverRef ! NameCheck(innerProbeName)
@@ -90,8 +90,8 @@ with BeforeAndAfterAll {
     serverRef ! Register(pb1, innerProbeName)
     expectMsg(Authorized(pb1, innerProbeName))
     // broadcast client list
-    serverRef ! GetOnlineClients
-    expectMsg(ClientList(serverRef.underlyingActor.idToRef.keys.toSet))
+    serverRef ! GetOnlineClients(self)
+    expectMsg(ClientList(serverRef.underlyingActor.idToRef.keys.toSet - nm))
     val pb2 = TestProbe().ref
     serverRef ! Register(pb2, nm)
     expectMsg(Authorized(pb2, nm))

@@ -9,9 +9,11 @@ import akka.actor.ActorRef
  * Time: 12:59 AM
  */
 
+//TODO: refactor actor to remove ActorRef everywhere
+
 sealed trait ChatEvent
 
-case object GetOnlineClients extends ChatEvent
+case class GetOnlineClients(client: ActorRef) extends ChatEvent
 
 case class NameCheck(name: String) extends ChatEvent
 
@@ -21,7 +23,7 @@ case class Register(client: ActorRef, name: String) extends ChatEvent
 
 case class Authorized(client: ActorRef, name: String) extends ChatEvent
 
-case class Unregister(id: String) extends ChatEvent
+case class Unregister(client: ActorRef, id: String) extends ChatEvent
 
 case class MemberChanged(name: String, isExists: Boolean) extends ChatEvent
 
