@@ -38,29 +38,31 @@ with BeforeAndAfterAll {
     TestKit.shutdownActorSystem(system)
   }
 
-  it should "register client correctly" in {
+  "ServerActor" should "register client correctly" in {
     val (serverRef, _, _) = settings()
     val newClient = TestProbe()
     serverRef.tell(Register(newClient.ref, "123"), newClient.ref)
     serverRef.underlyingActor.idToRef.contains("123") shouldBe true
   }
 
-  it should "list all registered client" in {
+  "ServerActor" should "list all registered client" in {
     val (serverRef, clients, rdClientId) = settings()
-    serverRef.tell(GetOnlineClients, clients(rdClientId).ref)
-    clients(rdClientId).expectMsg(ClientList(clients.keys.toSet))
+    val clt = clients(rdClientId)
+    serverRef ! GetOnlineClients(clt.ref)
+    clt.expectMsg(ClientList(clients.keys.toSet))
   }
 
-  it should "send msg to all registered users except the msg sender" in {
+  "ServerActor" should "send msg to all registered users except the msg sender" in {
     val (serverRef, clients, rdClientId) = settings()
     serverRef.tell(Message("testMsg", rdClientId), clients(rdClientId).ref)
     clients(rdClientId).expectNoMsg()
     (clients - rdClientId).values foreach (_.expectMsg(Message("testMsg", rdClientId)))
   }
 
-  it should "list all registered client except the unregistered ones" in {
+  "ServerActor" should "list all registered client except the unregistered ones" in {
     val (serverRef, clients, rdClientId) = settings()
-    serverRef.tell(Unregister(clients(rdClientId).ref, rdClientId), clients(rdClientId).ref)
+    val cltRef = clients(rdClientId).ref
+    serverRef.tell(Unregister(cltRef, rdClientId), cltRef)
     serverRef.underlyingActor.idToRef.contains(rdClientId) shouldBe false
   }
 
@@ -72,7 +74,6 @@ with BeforeAndAfterAll {
     expectMsg(NameValidation(true, "123"))
   }
 
-  //TODO: complete and refactor test
   "ServerActor" should "do broadcast correctly when some names are reserved" in {
     val (serverRef, _, innerProbeName) = settings()
     val innerRef = serverRef.underlyingActor.idToRef(innerProbeName).get
@@ -86,12 +87,16 @@ with BeforeAndAfterAll {
     // broadcast register event
     serverRef ! NameCheck(innerProbeName)
     expectMsg(NameValidation(true, innerProbeName))
-    val pb1 = TestProbe().ref
-    serverRef ! Register(pb1, innerProbeName)
-    expectMsg(Authorized(pb1, innerProbeName))
+    val pb1 = TestProbe()
+    serverRef ! Register(pb1.ref, innerProbeName)
+    expectMsg(Authorized(pb1.ref, innerProbeName))
     // broadcast client list
     serverRef ! GetOnlineClients(self)
     expectMsg(ClientList(serverRef.underlyingActor.idToRef.keys.toSet - nm))
+    // broadcast message
+    serverRef ! Message("txt", innerProbeName)
+    pb1.expectNoMsg()
+    // register on server
     val pb2 = TestProbe().ref
     serverRef ! Register(pb2, nm)
     expectMsg(Authorized(pb2, nm))

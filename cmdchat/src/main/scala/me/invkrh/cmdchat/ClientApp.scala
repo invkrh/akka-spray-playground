@@ -24,7 +24,7 @@ class SessionActor(server: ActorRef) extends Actor {
 
   def verification(): Receive = {
     case NameValidation(true, name) =>
-      val client = context.actorOf(Props(classOf[ClientActor], name))
+      val client = context.actorOf(Props(classOf[ClientActor], name), s"clt_$name")
       server ! Register(client, name)
       context.become(working())
 
@@ -37,24 +37,29 @@ class SessionActor(server: ActorRef) extends Actor {
     case Authorized(client, name) =>
       showNotification("Server", s"Hey, $name. You are connected!", getPrompt(name))
       Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
+        case "/list"     => server ! GetOnlineClients(client)
         case txt: String =>
-          server.tell(Message(txt, name), client)
+          server ! Message(txt, name)
           print(s"\nme ($name) > ") // for continuous input prompt
       }
       println("Exiting...")
       server ! Unregister(client, name)
-      context.system.shutdown()
   }
 
   override def preStart() {
     checkName()
   }
 
-  override def receive: Actor.Receive = verification()
+  override def receive: Receive = verification()
 }
 
 class ClientActor(val name: String) extends Actor {
   val prompt = getPrompt(name)
+
+  // once Client actor is killed, system should be down
+  override def postStop(): Unit = {
+    context.system.shutdown()
+  }
 
   override def receive: Receive = {
     case ClientList(ids)               => showInputRes(ids mkString ", ", prompt)
@@ -65,19 +70,14 @@ class ClientActor(val name: String) extends Actor {
 }
 
 object ClientApp {
+  val system = ActorSystem("AkkaChat", ConfigFactory.load.getConfig("client-node"))
 
-  def main(args: Array[String]) = {
-
-    val system = ActorSystem("AkkaChat", ConfigFactory.load.getConfig("client-node"))
-    val serverPort = 2552
-    val serverAddress = "127.0.0.1"
-
+  def startSession(serverAddr: String, port: Int) = {
     // validation
     import scala.concurrent.ExecutionContext.Implicits.global
-
     // need to resolve server in 5 seconds
-    implicit val timeout = Timeout(5 seconds)
-    system.actorSelection(s"akka.tcp://AkkaChat@$serverAddress:$serverPort/user/chatserver")
+    implicit val timeout = Timeout(3 seconds)
+    system.actorSelection(s"akka.tcp://AkkaChat@$serverAddr:$port/user/chatserver")
       .resolveOne()
       .onComplete {
       case Success(server) => // Server is ready
@@ -86,7 +86,10 @@ object ClientApp {
         showNotification("System", "service not available!")
         system.shutdown()
     }
+  }
 
+  def main(args: Array[String]) = {
+    startSession("127.0.0.1", 2552)
   }
 
 }

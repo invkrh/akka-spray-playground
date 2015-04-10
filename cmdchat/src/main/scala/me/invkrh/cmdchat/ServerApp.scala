@@ -19,7 +19,7 @@ class ServerActor extends Actor {
   var idToRef = Map[String, Option[ActorRef]]()
 
   override def receive: Receive = {
-    case NameCheck(id@name)     =>
+    case NameCheck(id@name)     => //sender is SessionActor
       if (idToRef.contains(name)) {
         sender() ! NameValidation(result = false, name)
       } else {
