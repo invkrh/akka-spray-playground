@@ -40,21 +40,20 @@ with BeforeAndAfterAll {
 
   "ServerActor" should "register client correctly" in {
     val (serverRef, _, _) = settings()
-    val newClient = TestProbe()
-    serverRef.tell(Register(newClient.ref, "123"), newClient.ref)
+    serverRef ! Register(self, "123")
+    expectMsg(Authorized(self, "123"))
     serverRef.underlyingActor.idToRef.contains("123") shouldBe true
   }
 
   "ServerActor" should "list all registered client" in {
-    val (serverRef, clients, rdClientId) = settings()
-    val clt = clients(rdClientId)
-    serverRef ! GetOnlineClients(clt.ref)
-    clt.expectMsg(ClientList(clients.keys.toSet))
+    val (serverRef, clients, _) = settings()
+    serverRef ! GetOnlineClients(self)
+    expectMsg(ClientList(clients.keys.toSet))
   }
 
   "ServerActor" should "send msg to all registered users except the msg sender" in {
     val (serverRef, clients, rdClientId) = settings()
-    serverRef.tell(Message("testMsg", rdClientId), clients(rdClientId).ref)
+    serverRef ! Message("testMsg", rdClientId)
     clients(rdClientId).expectNoMsg()
     (clients - rdClientId).values foreach (_.expectMsg(Message("testMsg", rdClientId)))
   }
@@ -62,7 +61,7 @@ with BeforeAndAfterAll {
   "ServerActor" should "list all registered client except the unregistered ones" in {
     val (serverRef, clients, rdClientId) = settings()
     val cltRef = clients(rdClientId).ref
-    serverRef.tell(Unregister(cltRef, rdClientId), cltRef)
+    serverRef ! Unregister(cltRef, rdClientId)
     serverRef.underlyingActor.idToRef.contains(rdClientId) shouldBe false
   }
 
