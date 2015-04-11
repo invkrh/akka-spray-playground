@@ -13,17 +13,17 @@ import akka.actor.ActorRef
 
 sealed trait ChatEvent
 
-case class GetOnlineClients(client: ActorRef) extends ChatEvent
+case object GetOnlineClients extends ChatEvent
 
 case class NameCheck(name: String) extends ChatEvent
 
 case class NameValidation(result: Boolean, name: String) extends ChatEvent
 
-case class Register(client: ActorRef, name: String) extends ChatEvent
+case class Register(name: String) extends ChatEvent
 
-case class Authorized(client: ActorRef, name: String) extends ChatEvent
+case object Authorized extends ChatEvent
 
-case class Unregister(client: ActorRef, id: String) extends ChatEvent
+case class Unregister(id: String) extends ChatEvent
 
 case class MemberChanged(name: String, isExists: Boolean) extends ChatEvent
 

@@ -24,7 +24,7 @@ object Printer {
   }
 
   // cursor in the current line
-  def showIncomingMSG(sdr: String, txt: String, prompt: String = "") = {
+  def showIncomingMsg(sdr: String, txt: String, prompt: String = "") = {
     print(s"\n|\n|\t\t\t\t\t\t\t\t\t\t[ $sdr > $txt ]\n|\n" + prompt)
   }
 }

@@ -8,13 +8,13 @@ import me.invkrh.cmdchat.Printer._
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-
 /**
  * The actor manage the session between server and client.
  * (login, send message, quit, etc)
  *
  * @param server
  */
+
 class SessionActor(server: ActorRef) extends Actor {
 
   def checkName() = {
@@ -22,35 +22,18 @@ class SessionActor(server: ActorRef) extends Actor {
     server ! NameCheck(name)
   }
 
-  def verification(): Receive = {
-    case NameValidation(true, name) =>
-      val client = context.actorOf(Props(classOf[ClientActor], name), s"clt_$name")
-      server ! Register(client, name)
-      context.become(working())
-
-    case NameValidation(false, name) =>
-      showNotification("Server", s"Name [ $name ] is occupied, please try another ...")
-      checkName()
-  }
-
-  def working(): Receive = {
-    case Authorized(client, name) =>
-      showNotification("Server", s"Hey, $name. You are connected!", getPrompt(name))
-      Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
-        case "/list"     => server ! GetOnlineClients(client)
-        case txt: String =>
-          server ! Message(txt, name)
-          print(s"\nme ($name) > ") // for continuous input prompt
-      }
-      println("Exiting...")
-      server ! Unregister(client, name)
-  }
-
   override def preStart() {
     checkName()
   }
 
-  override def receive: Receive = verification()
+  override def receive: Receive = {
+    case NameValidation(true, name)  =>
+      val client = context.actorOf(Props(classOf[ClientActor], name), s"clt_$name")
+      server.tell(Register(name), client)
+    case NameValidation(false, name) =>
+      showNotification("Server", s"Name [ $name ] is occupied, please try another ...")
+      checkName()
+  }
 }
 
 class ClientActor(val name: String) extends Actor {
@@ -65,7 +48,17 @@ class ClientActor(val name: String) extends Actor {
     case ClientList(ids)               => showInputRes(ids mkString ", ", prompt)
     case MemberChanged(another, true)  => showNotification("Server", s"$another has joined in the group", prompt)
     case MemberChanged(another, false) => showNotification("Server", s"$another has left the group", prompt)
-    case msg@Message(txt, sdr)         => showIncomingMSG(sdr, txt, prompt)
+    case msg@Message(txt, msgSdr)      => showIncomingMsg(msgSdr, txt, prompt)
+    case Authorized                    => // sender is server
+      showNotification("Server", s"Hey, $name. You are connected!", getPrompt(name))
+      Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
+        case "/list"     => sender() ! GetOnlineClients
+        case txt: String =>
+          sender() ! Message(txt, name)
+          print(s"\nme ($name) > ") // for continuous input prompt
+      }
+      println("Exiting...")
+      sender() ! Unregister(name)
   }
 }
 
