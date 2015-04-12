@@ -13,6 +13,7 @@ import java.io.{ByteArrayInputStream, SequenceInputStream}
  * Time: 11:04 PM
  */
 
+//TODO: redo tests
 class ClientSideTest extends TestKit(ActorSystem("testSystem"))
 with ImplicitSender
 with FlatSpecLike

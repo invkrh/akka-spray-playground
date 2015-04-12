@@ -1,7 +1,5 @@
 package me.invkrh.cmdchat
 
-import akka.actor.ActorRef
-
 /**
  * Created with IntelliJ IDEA.
  * User: invkrh
@@ -9,21 +7,19 @@ import akka.actor.ActorRef
  * Time: 12:59 AM
  */
 
-//TODO: refactor actor to remove ActorRef everywhere
-
 sealed trait ChatEvent
 
 case object GetOnlineClients extends ChatEvent
 
 case class NameCheck(name: String) extends ChatEvent
 
-case class NameValidation(result: Boolean, name: String) extends ChatEvent
+case class NameValidation(name: String, result: Boolean) extends ChatEvent
 
 case class Register(name: String) extends ChatEvent
 
 case object Authorized extends ChatEvent
 
-case class Unregister(id: String) extends ChatEvent
+case class Unregister(name: String) extends ChatEvent
 
 case class MemberChanged(name: String, isExists: Boolean) extends ChatEvent
 

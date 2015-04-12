@@ -13,6 +13,7 @@ import scala.util.Random
  * Time: 12:25 AM
  */
 
+//TODO: redo test
 class ServerSideTest extends TestKit(ActorSystem("testSystem"))
 with ImplicitSender
 with FlatSpecLike

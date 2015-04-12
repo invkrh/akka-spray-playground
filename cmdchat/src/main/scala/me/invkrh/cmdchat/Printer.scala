@@ -14,17 +14,17 @@ object Printer {
   }
 
   // cursor in the next line
-  def showInputRes(txt: String, prompt: String = "") = {
+  def response(txt: String, prompt: String = "") = {
     print(s"\n[ $txt ]\n\n" + prompt)
   }
 
   // cursor in the current line
-  def showNotification(sdr: String, txt: String, prompt: String = "") = {
+  def notification(sdr: String, txt: String, prompt: String = "") = {
     print(s"\n\n[ $sdr > $txt ]\n\n" + prompt)
   }
 
   // cursor in the current line
-  def showIncomingMsg(sdr: String, txt: String, prompt: String = "") = {
+  def incomingMsg(sdr: String, txt: String, prompt: String = "") = {
     print(s"\n|\n|\t\t\t\t\t\t\t\t\t\t[ $sdr > $txt ]\n|\n" + prompt)
   }
 }
