@@ -1,4 +1,4 @@
-package me.invkrh.cmdchat
+package me.invkrh.cmdchat.util
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,4 +27,5 @@ object Printer {
   def incomingMsg(sdr: String, txt: String, prompt: String = "") = {
     print(s"\n|\n|\t\t\t\t\t\t\t\t\t\t[ $sdr > $txt ]\n|\n" + prompt)
   }
+
 }
