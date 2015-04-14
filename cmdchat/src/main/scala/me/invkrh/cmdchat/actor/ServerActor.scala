@@ -58,10 +58,16 @@ class ServerActor extends Actor {
      * sender is ClientActor
      */
 
-    case msg@Message(txt, name) =>
-      idToRef.filter(_._1 != name).values.foreach {
+    case msg@PrivateMessage(txt, sdrName, target) =>
+      idToRef.getOrElse(target, None) match {
         case Some(member) => member forward msg
-        case None         =>
+        case None         => sender() ! s"$target is not registered yet ! Msg <$txt> is not delivered"
+      }
+
+    case msg@Message(txt, sdrName) =>
+      idToRef.values.foreach {
+        case Some(member) if member != sender() => member forward msg
+        case _                                  =>
       }
 
     case GetOnlineClients =>

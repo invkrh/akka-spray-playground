@@ -18,9 +18,11 @@ class ClientActor(val name: String) extends Actor {
   override def postStop(): Unit = context.system.shutdown()
 
   override def receive: Receive = {
-    case ClientList(ids)             => response(ids mkString ", ", prompt)
-    case MemberChanged(another, res) => incomingMsg("Server", s"$another has ${if (res) "joined in" else "left"} the group", prompt)
-    case msg@Message(txt, msgSdr)    => incomingMsg(msgSdr, txt, prompt)
+    case ClientList(ids)                         => response(ids mkString ", ", prompt)
+    case MemberChanged(another, res)             => incomingMsg("Server", s"$another has ${if (res) "joined in" else "left"} the group", prompt)
+    case msg@Message(txt, msgSdr)                => incomingMsg(msgSdr, txt, prompt)
+    case msg@PrivateMessage(txt, msgSdr, target) => incomingMsg(msgSdr + " (in private)", txt, prompt)
+    case reply: String                           => incomingMsg("Server", reply, prompt)
   }
 
 }

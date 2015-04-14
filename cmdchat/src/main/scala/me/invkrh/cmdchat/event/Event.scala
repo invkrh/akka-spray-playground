@@ -23,7 +23,9 @@ case class Unregister(name: String) extends Event
 
 case class MemberChanged(name: String, isExists: Boolean) extends Event
 
-case class Message(text: String, senderId: String) extends Event
+case class Message(text: String, from: String) extends Event
+
+case class PrivateMessage(text: String, from: String, to: String) extends Event
 
 case object GetOnlineClients extends Event
 
