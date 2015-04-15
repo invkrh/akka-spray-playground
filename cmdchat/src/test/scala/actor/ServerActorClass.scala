@@ -23,11 +23,13 @@ with FlatSpecLike
 with Matchers
 with BeforeAndAfterAll {
 
+  val testMsg = "this is a test message"
+  
   /**
    * common test settings
    */
 
-  def settings(nbClient: Int = 30) = {
+  def settings(nbClient: Int = 5) = {
     val serverRef = TestActorRef[ServerActor]
     // transform to map in order to  remove duplicated keys if exists
     val clients = Array.tabulate(nbClient)(_ => (Random.alphanumeric.take(10).toArray.mkString, TestProbe())).toMap
@@ -51,9 +53,18 @@ with BeforeAndAfterAll {
 
   "ServerActor" should "send msg to all registered users except the msg sender" in {
     val (serverRef, clients, rdClientId) = settings()
-    serverRef ! Message("testMsg", rdClientId)
+    serverRef ! Message(testMsg, rdClientId)
     clients(rdClientId).expectNoMsg()
-    (clients - rdClientId).values foreach (_.expectMsg(Message("testMsg", rdClientId)))
+    (clients - rdClientId).values foreach (_.expectMsg(Message(testMsg, rdClientId)))
+  }
+
+  "ServerActor" should "send private msg only to the target user" in {
+    val (serverRef, clients, rdClientId) = settings()
+    serverRef ! PrivateMessage(testMsg, "anyOne", rdClientId)
+    clients(rdClientId).expectMsg(PrivateMessage(testMsg, "anyOne", rdClientId))
+    (clients - rdClientId).values foreach (_.expectNoMsg())
+    serverRef ! PrivateMessage(testMsg, "anyOne", "notExist")
+    expectMsg(TargetNotExist(testMsg, "notExist"))
   }
 
   "ServerActor" should "broadcast membership change to all registered client" in {

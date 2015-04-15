@@ -44,6 +44,16 @@ with BeforeAndAfterAll {
     expectNoMsg()
   }
 
+  "ClientActor" should "reply nothing when receiving a private message" in {
+    clientRef ! PrivateMessage("this is a message", "", "")
+    expectNoMsg()
+  }
+
+  "ClientActor" should "reply nothing when the target of a private message is not available" in {
+    clientRef ! TargetNotExist("", "")
+    expectNoMsg()
+  }
+
   "ClientActor" should "be killed when PoisonPill is received" in {
     val dyingClient = TestActorRef(new ClientActor(clientName))
     val ctx = dyingClient.underlyingActor.context

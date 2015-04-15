@@ -22,7 +22,7 @@ class ClientActor(val name: String) extends Actor {
     case MemberChanged(another, res)             => incomingMsg("Server", s"$another has ${if (res) "joined in" else "left"} the group", prompt)
     case msg@Message(txt, msgSdr)                => incomingMsg(msgSdr, txt, prompt)
     case msg@PrivateMessage(txt, msgSdr, target) => incomingMsg(msgSdr + " (in private)", txt, prompt)
-    case reply: String                           => incomingMsg("Server", reply, prompt)
+    case TargetNotExist(txt, target)             => incomingMsg("Server", s"$target is not registered yet ! Msg <$txt> is not delivered", prompt)
   }
 
 }

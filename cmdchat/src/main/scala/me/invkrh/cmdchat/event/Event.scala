@@ -27,6 +27,8 @@ case class Message(text: String, from: String) extends Event
 
 case class PrivateMessage(text: String, from: String, to: String) extends Event
 
+case class TargetNotExist(text: String, target: String) extends Event
+
 case object GetOnlineClients extends Event
 
 case class ClientList(clients: Set[String]) extends Event

@@ -21,7 +21,9 @@ with FlatSpecLike
 with Matchers
 with BeforeAndAfterAll {
 
-  val msg = "this is a msg"
+  val target     = "B"
+  val msg        = "this is a msg"
+  val privateMsg = s"@$target $msg"
 
   "SessionActor" should "register client on server side when name is valid" in {
     val sa = TestActorRef(new SessionActor)
@@ -38,13 +40,14 @@ with BeforeAndAfterAll {
 
   "SessionActor" should "work correctly once Authorized msg is received" in {
     val cltName = "A"
-    cannedInput("/list", msg, "/exit")
+    cannedInput("/list", msg, privateMsg, "/exit")
     val sa = TestActorRef(new SessionActor)
     sa ! NameValidation(cltName, result = true)
     expectMsg(Register(cltName, sa.getSingleChild(s"clt_$cltName")))
     sa ! Authorized(cltName)
     expectMsg(GetOnlineClients)
     expectMsg(Message(msg, cltName))
+    expectMsg(PrivateMessage(msg, cltName, target))
     expectMsg(Unregister(cltName))
   }
 }
