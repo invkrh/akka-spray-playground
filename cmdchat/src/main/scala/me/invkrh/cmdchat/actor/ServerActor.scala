@@ -1,6 +1,6 @@
 package me.invkrh.cmdchat.actor
 
-import akka.actor.{Actor, ActorRef, PoisonPill}
+import akka.actor.{Terminated, Actor, ActorRef, PoisonPill}
 import me.invkrh.cmdchat.event._
 
 /**
@@ -43,6 +43,7 @@ class ServerActor extends Actor {
         case None         =>
       }
       idToRef += name -> Some(client)
+      context.watch(client)
       sender() ! Authorized(name)
 
     case Unregister(name) =>
@@ -57,6 +58,19 @@ class ServerActor extends Actor {
     /**
      * sender is ClientActor
      */
+
+    //TODO: add test
+    case Terminated(dead) =>
+      val name = idToRef.find(_._2 == Some(dead)) match {
+        case Some((deadName, _)) => deadName
+        case None                => throw new NoSuchElementException
+      }
+      println(s"server > $name has left")
+      idToRef -= name
+      idToRef.values.foreach {
+        case Some(member) => member ! MemberChanged(name, isExists = false)
+        case None         =>
+      }
 
     case msg@PrivateMessage(txt, sdrName, target) =>
       idToRef.getOrElse(target, None) match {
