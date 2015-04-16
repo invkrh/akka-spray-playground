@@ -24,7 +24,7 @@ with Matchers
 with BeforeAndAfterAll {
 
   val testMsg = "this is a test message"
-  
+
   /**
    * common test settings
    */
@@ -53,8 +53,9 @@ with BeforeAndAfterAll {
 
   "ServerActor" should "send msg to all registered users except the msg sender" in {
     val (serverRef, clients, rdClientId) = settings()
-    serverRef ! Message(testMsg, rdClientId)
-    clients(rdClientId).expectNoMsg()
+    val clt = clients(rdClientId)
+    serverRef.tell(Message(testMsg, rdClientId), clt.ref)
+    clt.expectNoMsg()
     (clients - rdClientId).values foreach (_.expectMsg(Message(testMsg, rdClientId)))
   }
 
