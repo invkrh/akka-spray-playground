@@ -1,13 +1,10 @@
-package actor
+package me.invkrh.cmdchat.actor
 
-import akka.actor.{PoisonPill, ActorSystem}
+import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
-import me.invkrh.cmdchat.actor.ClientActor
-import me.invkrh.cmdchat.app.ClientApp
 import me.invkrh.cmdchat.event._
-import mock.MockUserInput
+import me.invkrh.cmdchat.mock.MockUserInput
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
-
 
 /**
  * Created with IntelliJ IDEA.

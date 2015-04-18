@@ -1,6 +1,6 @@
 package me.invkrh.cmdchat.actor
 
-import akka.actor.{Terminated, Actor, ActorRef, PoisonPill}
+import akka.actor.{Actor, ActorRef, PoisonPill, Terminated}
 import me.invkrh.cmdchat.event._
 
 /**

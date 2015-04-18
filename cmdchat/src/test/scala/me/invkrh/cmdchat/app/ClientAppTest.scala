@@ -1,12 +1,9 @@
-package app
+package me.invkrh.cmdchat.app
 
-import akka.actor.{PoisonPill, Props, ActorSystem}
+import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import com.typesafe.config.ConfigFactory
-import me.invkrh.cmdchat.actor.ServerActor
-import me.invkrh.cmdchat.app.ClientApp
-import mock.MockUserInput
-import org.scalatest.{BeforeAndAfterAll, Matchers, FlatSpecLike}
+import me.invkrh.cmdchat.mock.MockUserInput
+import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
  * Created with IntelliJ IDEA.

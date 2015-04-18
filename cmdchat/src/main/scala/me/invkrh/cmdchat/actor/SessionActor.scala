@@ -2,9 +2,7 @@ package me.invkrh.cmdchat.actor
 
 import akka.actor.{Actor, ActorRef, Props}
 import me.invkrh.cmdchat.event._
-import me.invkrh.cmdchat.util.Printer._
-
-import scala.util.matching.Regex
+import me.invkrh.cmdchat.util.Display
 
 /**
  * The SessionActor manages the session between the server and a ClientActor created by itself
@@ -13,7 +11,7 @@ import scala.util.matching.Regex
  * If not, then loop name check.
  */
 
-class SessionActor extends Actor {
+class SessionActor extends Actor with Display{
 
   // Useful regex to match the private message command
   val privateMessageRegex = """^@([^\s]+) (.*)$""".r

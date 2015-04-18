@@ -5,10 +5,9 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import me.invkrh.cmdchat.actor.SessionActor
 import me.invkrh.cmdchat.event.NameCheck
-import me.invkrh.cmdchat.util.Printer
-import me.invkrh.cmdchat.util.Printer._
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object ClientApp {
@@ -25,7 +24,7 @@ object ClientApp {
         val session = system.actorOf(Props(classOf[SessionActor]))
         server.tell(NameCheck(readLine("\nPlease enter you name: ")), session)
       case Failure(_)      =>
-        notification("System", "service not available!")
+        println("Server is not available! Please try later...")
         system.shutdown()
     }
   }

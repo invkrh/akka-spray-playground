@@ -1,7 +1,8 @@
-package mock
+package me.invkrh.cmdchat.mock
+
+import java.io.{ByteArrayInputStream, SequenceInputStream}
 
 import scala.collection.JavaConversions._
-import java.io.{SequenceInputStream, ByteArrayInputStream}
 
 /**
  * Created with IntelliJ IDEA.

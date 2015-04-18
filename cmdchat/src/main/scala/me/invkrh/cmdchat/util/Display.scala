@@ -7,7 +7,7 @@ package me.invkrh.cmdchat.util
  * Time: 9:29 PM
  */
 
-object Printer {
+trait Display {
 
   def getPrompt(name: String) = {
     s"me ($name) > "

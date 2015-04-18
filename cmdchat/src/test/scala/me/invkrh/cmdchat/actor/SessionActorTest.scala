@@ -1,10 +1,9 @@
-package actor
+package me.invkrh.cmdchat.actor
 
 import akka.actor.ActorSystem
-import akka.testkit.{TestActorRef, ImplicitSender, TestKit}
-import me.invkrh.cmdchat.actor.{ClientActor, SessionActor}
+import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import me.invkrh.cmdchat.event._
-import mock.MockUserInput
+import me.invkrh.cmdchat.mock.MockUserInput
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**

@@ -1,10 +1,9 @@
-package app
+package me.invkrh.cmdchat.app
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import me.invkrh.cmdchat.app.{ServerApp, ClientApp}
-import mock.MockUserInput
-import org.scalatest.{BeforeAndAfterAll, Matchers, FlatSpecLike}
+import me.invkrh.cmdchat.mock.MockUserInput
+import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
  * Created with IntelliJ IDEA.

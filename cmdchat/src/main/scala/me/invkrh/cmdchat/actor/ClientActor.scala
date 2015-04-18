@@ -2,7 +2,7 @@ package me.invkrh.cmdchat.actor
 
 import akka.actor.Actor
 import me.invkrh.cmdchat.event._
-import me.invkrh.cmdchat.util.Printer._
+import me.invkrh.cmdchat.util.Display
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,7 +10,7 @@ import me.invkrh.cmdchat.util.Printer._
  * Date: 4/12/15
  * Time: 12:32 PM
  */
-class ClientActor(val name: String) extends Actor {
+class ClientActor(val name: String) extends Actor with Display{
 
   val prompt = getPrompt(name)
 

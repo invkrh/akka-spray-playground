@@ -1,11 +1,10 @@
-package actor
+package me.invkrh.cmdchat.actor
 
-import akka.actor.{Terminated, PoisonPill, ActorSystem}
-import akka.testkit.{TestProbe, TestActorRef, ImplicitSender, TestKit}
-import me.invkrh.cmdchat.actor.ServerActor
+import akka.actor.ActorSystem
+import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
 import me.invkrh.cmdchat.event._
-import mock.MockUserInput
-import org.scalatest.{BeforeAndAfterAll, Matchers, FlatSpecLike}
+import me.invkrh.cmdchat.mock.MockUserInput
+import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 import scala.util.Random
 
