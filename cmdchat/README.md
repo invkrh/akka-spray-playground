@@ -1,7 +1,7 @@
 cmdchat
 =======
 
-A command line chat built on Akka.
+A command line group chat built on Akka.
 
 ### Topology
 *	only one central server (bind to `127.0.0.1:2552`)
