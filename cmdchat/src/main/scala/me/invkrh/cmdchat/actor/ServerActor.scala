@@ -47,13 +47,7 @@ class ServerActor extends Actor {
       sender() ! Authorized(name)
 
     case Unregister(name) =>
-      println(s"server > $name has left")
       idToRef(name).get ! PoisonPill
-      idToRef -= name
-      idToRef.values.foreach {
-        case Some(member) => member ! MemberChanged(name, isExists = false)
-        case None         =>
-      }
 
     /**
      * sender is ClientActor
