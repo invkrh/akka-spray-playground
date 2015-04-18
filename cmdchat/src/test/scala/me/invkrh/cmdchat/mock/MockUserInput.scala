@@ -12,10 +12,10 @@ import scala.collection.JavaConversions._
  */
 
 trait MockUserInput {
-  def cannedInput(cmds: String*) = {
+  def cannedInput[T](cmds: String*)(thunk: => T) = {
     val inputs = cmds.toIterator
       .map(x => new ByteArrayInputStream((x + "\n").getBytes))
     val in = new SequenceInputStream(inputs)
-    Console.setIn(in)
+    Console.withIn(in)(thunk)
   }
 }

@@ -22,9 +22,9 @@ object ClientApp {
       .onComplete {
       case Success(server) => // Server is ready
         val session = system.actorOf(Props(classOf[SessionActor]))
-        server.tell(NameCheck(readLine("\nPlease enter you name: ")), session)
+        server.tell(NameCheck(scala.io.StdIn.readLine("\nPlease enter you name: ")), session)
       case Failure(_)      =>
-        println("Server is not available! Please try later...")
+        println("\nServer is not available! Please try later...\n")
         system.shutdown()
     }
   }

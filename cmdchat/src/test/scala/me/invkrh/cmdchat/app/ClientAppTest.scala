@@ -2,7 +2,6 @@ package me.invkrh.cmdchat.app
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import me.invkrh.cmdchat.mock.MockUserInput
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
@@ -14,7 +13,6 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 class ClientAppTest extends TestKit(ActorSystem("testSystem"))
 with ImplicitSender
-with MockUserInput
 with FlatSpecLike
 with Matchers
 with BeforeAndAfterAll {

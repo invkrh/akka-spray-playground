@@ -31,22 +31,25 @@ with BeforeAndAfterAll {
   }
 
   "SessionActor" should "retry name check when name is not valid" in {
-    cannedInput("B")
-    val sa = TestActorRef(new SessionActor)
-    sa ! NameValidation("", result = false)
-    expectMsg(NameCheck("B"))
+    cannedInput("B") {
+      val sa = TestActorRef(new SessionActor)
+      sa ! NameValidation("", result = false)
+      expectMsg(NameCheck("B"))
+    }
+
   }
 
   "SessionActor" should "work correctly once Authorized msg is received" in {
     val cltName = "A"
-    cannedInput("/list", msg, privateMsg, "/exit")
-    val sa = TestActorRef(new SessionActor)
-    sa ! NameValidation(cltName, result = true)
-    expectMsg(Register(cltName, sa.getSingleChild(s"clt_$cltName")))
-    sa ! Authorized(cltName)
-    expectMsg(GetOnlineClients)
-    expectMsg(Message(msg, cltName))
-    expectMsg(PrivateMessage(msg, cltName, target))
-    expectMsg(Unregister(cltName))
+    cannedInput("/list", msg, privateMsg, "/exit") {
+      val sa = TestActorRef(new SessionActor)
+      sa ! NameValidation(cltName, result = true)
+      expectMsg(Register(cltName, sa.getSingleChild(s"clt_$cltName")))
+      sa ! Authorized(cltName)
+      expectMsg(GetOnlineClients)
+      expectMsg(Message(msg, cltName))
+      expectMsg(PrivateMessage(msg, cltName, target))
+      expectMsg(Unregister(cltName))
+    }
   }
 }

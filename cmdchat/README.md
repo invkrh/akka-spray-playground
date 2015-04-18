@@ -19,6 +19,7 @@ A command line group chat built on Akka.
 *	prompt: prompt display is optimized for UX
 
 ### Test
+*	mock user input by setting a custom input stream
 *	type `sbt clean coverage test` to run the test with a html report
 *	make sure the coverage is higher than 80%
 

@@ -3,7 +3,6 @@ package me.invkrh.cmdchat.actor
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import me.invkrh.cmdchat.event._
-import me.invkrh.cmdchat.mock.MockUserInput
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 /**
@@ -15,7 +14,6 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 class ClientActorTest extends TestKit(ActorSystem("testSystem"))
 with ImplicitSender
-with MockUserInput
 with FlatSpecLike
 with Matchers
 with BeforeAndAfterAll {

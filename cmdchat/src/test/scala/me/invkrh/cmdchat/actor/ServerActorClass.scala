@@ -3,7 +3,6 @@ package me.invkrh.cmdchat.actor
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
 import me.invkrh.cmdchat.event._
-import me.invkrh.cmdchat.mock.MockUserInput
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 import scala.util.Random
@@ -17,7 +16,6 @@ import scala.util.Random
 
 class ServerActorClass extends TestKit(ActorSystem("testSystem"))
 with ImplicitSender
-with MockUserInput
 with FlatSpecLike
 with Matchers
 with BeforeAndAfterAll {

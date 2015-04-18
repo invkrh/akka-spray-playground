@@ -19,7 +19,7 @@ class SessionActor extends Actor with Display{
   def working(server: ActorRef, client: ActorRef): Receive = {
     case Authorized(name) =>
       notification("Server", s"Hey, $name. You are connected!", getPrompt(name))
-      Iterator.continually(readLine()).takeWhile(_ != "/exit").foreach {
+      Iterator.continually(scala.io.StdIn.readLine()).takeWhile(_ != "/exit").foreach {
         case "/list"                              => server.tell(GetOnlineClients, client)
         case privateMessageRegex(target, message) =>
           server.tell(PrivateMessage(message, name, target), client)
@@ -41,7 +41,7 @@ class SessionActor extends Actor with Display{
         context.become(working(sender(), client))
       } else {
         notification("Server", s"Name ($name) is occupied, please try another ...")
-        sender() ! NameCheck(readLine("\nPlease enter you name: "))
+        sender() ! NameCheck(scala.io.StdIn.readLine("\nPlease enter you name: "))
       }
   }
 
