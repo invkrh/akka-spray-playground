@@ -1,6 +1,6 @@
 package actor
 
-import akka.actor.ActorSystem
+import akka.actor.{Terminated, PoisonPill, ActorSystem}
 import akka.testkit.{TestProbe, TestActorRef, ImplicitSender, TestKit}
 import me.invkrh.cmdchat.actor.ServerActor
 import me.invkrh.cmdchat.event._
@@ -33,6 +33,8 @@ with BeforeAndAfterAll {
     val serverRef = TestActorRef[ServerActor]
     // transform to map in order to  remove duplicated keys if exists
     val clients = Array.tabulate(nbClient)(_ => (Random.alphanumeric.take(10).toArray.mkString, TestProbe())).toMap
+    // register client
+    clients.values.map(_.ref).foreach(serverRef.watch)
     val rdClientId = clients.keys.toArray.apply(Random.nextInt(nbClient))
     serverRef.underlyingActor.idToRef = clients.mapValues(v => Some(v.ref))
     (serverRef, clients, rdClientId)
@@ -71,8 +73,11 @@ with BeforeAndAfterAll {
   "ServerActor" should "broadcast membership change to all registered client" in {
     val (serverRef, clients, rdClientId) = settings()
     // user probe, prevent implicit sender being killed
-    val probe = clients(rdClientId)
-    serverRef.tell(Unregister(rdClientId), probe.ref)
+    val pickedClt = clients(rdClientId)
+    val listener = TestProbe()
+    listener watch pickedClt.ref
+    serverRef ! Unregister(rdClientId)
+    listener.expectTerminated(pickedClt.ref)
     serverRef.underlyingActor.idToRef.contains(rdClientId) shouldBe false
     (clients - rdClientId).values foreach (_.expectMsg(MemberChanged(rdClientId, isExists = false)))
   }
