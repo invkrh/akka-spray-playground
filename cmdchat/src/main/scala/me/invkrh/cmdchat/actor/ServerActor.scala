@@ -53,7 +53,6 @@ class ServerActor extends Actor {
      * sender is ClientActor
      */
 
-    //TODO: add test
     case Terminated(dead) =>
       val name = idToRef.find(_._2 == Some(dead)) match {
         case Some((deadName, _)) => deadName

@@ -22,6 +22,7 @@ object ClientApp {
       .onComplete {
       case Success(server) => // Server is ready
         val session = system.actorOf(Props(classOf[SessionActor]))
+        // TODO: add name validation check, invalid char " -_.*$+:@&=,!~';."
         server.tell(NameCheck(scala.io.StdIn.readLine("\nPlease enter you name: ")), session)
       case Failure(_)      =>
         println("\nServer is not available! Please try later...\n")
